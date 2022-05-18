@@ -14,16 +14,20 @@ const API_KEY_PROD = 'PROD12345627';
       inject: [config.KEY],
       useFactory: (configService: ConfigType<typeof config>) => {
         //conexion a la base de datos en de node hacia postgress docker
-        const { user, host, dbName, password, port } = configService.postgres;
+        //const { user, host, dbName, password, port } ;
         return {
           type: 'postgres',
-          host,
-          port,
-          username: user,
-          password,
-          database: dbName,
+          url: configService.postgresUrl,
+          // host,
+          // port,
+          // username: user,
+          // password,
+          // database: dbName,
           synchronize: false,
           autoLoadEntities: true,
+          ssl: {
+            rejectUnauthorized: false, //para HEROKU
+          },
         };
       },
     }),
@@ -38,13 +42,17 @@ const API_KEY_PROD = 'PROD12345627';
       provide: 'PG',
       useFactory: (configService: ConfigType<typeof config>) => {
         //conexion a la base de datos en de node hacia postgress docker
-        const { user, host, dbName, password, port } = configService.postgres;
+        // const { user, host, dbName, password, port } = configService.postgres;
         const client = new Client({
-          user,
-          host,
-          database: dbName,
-          password,
-          port,
+          connectionString: configService.postgresUrl, //para HEROKU
+          ssl: {
+            rejectUnauthorized: false, //para HEROKU
+          },
+          // user,
+          // host,
+          // database: dbName,
+          // password,
+          // port,
         });
         client.connect();
         return client;
